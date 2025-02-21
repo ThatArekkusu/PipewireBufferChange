@@ -21,6 +21,32 @@ func main() {
 		_, err = fmt.Scanln(&clockRate)
 		if err != nil {
 			fmt.Println("Error:", err)
+
+			// Fifth command
+			cmd := exec.Command(
+				"sed",
+				"-i",
+				"s/default.clock.rate[[:space:]]*=[[:space:]]*[0-9]*/default.clock.rate = "+fmt.Sprintf("%d", clockRate)+"/",
+				".config/pipewire/pipewire.conf")
+
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				fmt.Println("Error:", err)
+			}
+			fmt.Println(string(out))
+
+			cmd1 := exec.Command(
+				"sed",
+				"-i",
+				"s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\\[[[:space:]]*[0-9]+[[:space:]]*\\]/default.clock.allowed-rates = \\["+fmt.Sprintf("%d", clockRate)+"\\]/",
+				".config/pipewire/pipewire.conf")
+
+			out1, err := cmd1.CombinedOutput()
+			if err != nil {
+				fmt.Println("Error:", err)
+			}
+			fmt.Println(string(out1))
+
 			return
 		}
 	}
@@ -89,29 +115,4 @@ func main() {
 	}
 	fmt.Println(string(out4))
 
-	// Fifth command
-	cmd5 := exec.Command(
-		"sed",
-		"-i",
-		"s/default.clock.rate[[:space:]]*=[[:space:]]*[0-9]*/default.clock.rate = "+fmt.Sprintf("%d", clockRate)+"/",
-		".config/pipewire/pipewire.conf")
-
-	out5, err := cmd5.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	fmt.Println(string(out5))
-
-	// Sixth command
-	cmd6 := exec.Command(
-		"sed",
-		"-i",
-		"s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\\[[[:space:]]*[0-9]+[[:space:]]*\\]/default.clock.allowed-rates = \\["+fmt.Sprintf("%d", clockRate)+"\\]/",
-		".config/pipewire/pipewire.conf")
-
-	out6, err := cmd6.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	fmt.Println(string(out6))
 }

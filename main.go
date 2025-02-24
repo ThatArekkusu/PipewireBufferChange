@@ -75,7 +75,7 @@ func main() {
 		cmd1 := exec.Command(
 			"sed",
 			"-i",
-			`/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9]+[[:space:]]*\]/s/^[#[:space:]]*/    /; s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9]+[[:space:]]*\]/default.clock.allowed-rates = \[`+fmt.Sprintf("%d", clockRate)+`\]/`,
+			fmt.Sprintf(`/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9,[:space:]]*\]/s/^[#[:space:]]*/    /; s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9,[:space:]]*\]/default.clock.allowed-rates = \[ %d \]/`, clockRate),
 			dir+"/pipewire.conf")
 
 		out1, err := cmd1.CombinedOutput()
@@ -83,8 +83,6 @@ func main() {
 			fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 		}
 		fmt.Println(string(out1))
-
-		return
 	}
 
 	fmt.Println("Enter the buffer size you want to set the system to:")
@@ -206,6 +204,7 @@ func main() {
 		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 	}
 	fmt.Println(string(out8))
+
 }
 
 func storeDirec(dir string, err error) {

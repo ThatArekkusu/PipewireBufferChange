@@ -24,6 +24,16 @@ To install PipewireBufferChange, follow these steps:
     ./install.sh
     ```
 
+5. After setting buffer size:
+    ```bash
+    chmod +x audio.sh
+    ```
+
+6. Restart audio drivers (this will be automated in the future)
+    ```bash
+    ./audio.sh
+    ```
+
 ## Usage
 To use PipewireBufferChange, execute the following command:
 ```bash

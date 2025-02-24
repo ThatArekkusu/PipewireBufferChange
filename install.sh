@@ -16,5 +16,6 @@ echo 'fi' | sudo tee -a /usr/local/bin/bufferchange
 
 # Make the bufferchange script executable
 sudo chmod +x /usr/local/bin/bufferchange
+sudo chmod +x ./audio.sh
 
 echo "Installation complete. You can now use the 'bufferchange run' command."

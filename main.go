@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -10,9 +13,38 @@ func main() {
 	var clockRate int
 	var err error
 	var dir string
+	var storeDir string
+	var changeDir string
 
-	fmt.Println("Enter your pipewire configuration directory, This will likely be in /usr/share/pipewire or /.config/pipewire: ")
-	fmt.Scanln(&dir)
+	err = godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	dir = os.Getenv("PIPEWIRE_DIR")
+	if dir == "" {
+		fmt.Println("Enter your pipewire configuration directory, This will likely be in /usr/share/pipewire or /.config/pipewire: ")
+		fmt.Scanln(&dir)
+
+		fmt.Println("Would you like to store your pipewire configuration directory? (y/n): ")
+		fmt.Scanln(&storeDir)
+
+		if storeDir == "y" {
+			storeDirec(dir, err)
+		}
+	}
+
+	if dir != "" {
+		fmt.Println("Would you like to change your pipewire configuration directory? (y/n): ")
+		fmt.Scanln(&changeDir)
+
+		if changeDir == "y" {
+			fmt.Println("Enter your pipewire configuration directory, This will likely be in /usr/share/pipewire or /.config/pipewire: ")
+			fmt.Scanln(&dir)
+			storeDirec(dir, err)
+		}
+	}
+
 	fmt.Println("Do you want to set clock rate? (y/n): ")
 	fmt.Scanln(&clockChoice)
 
@@ -67,7 +99,7 @@ func main() {
 	// Buffer size "default.clock.min-quantum" needs to be half the buffer size.
 	bufferSizeMinQuantum := bufferSize / 2
 
-	// Uncomment and update the clock quantum
+	// Uncomment and update clock quantum
 	cmd1 := exec.Command(
 		"sed",
 		"-i",
@@ -80,7 +112,7 @@ func main() {
 	}
 	fmt.Println(string(out1))
 
-	// Uncomment and update the min quantum
+	// Uncomment and update min quantum
 	cmd2 := exec.Command(
 		"sed",
 		"-i",
@@ -119,6 +151,7 @@ func main() {
 	}
 	fmt.Println(string(out4))
 
+	// Uncomment and update rt prio
 	cmd5 := exec.Command(
 		"sed",
 		"-i",
@@ -146,11 +179,12 @@ func main() {
 	}
 	fmt.Println(string(out6))
 
+	// Uncomment and update node latency
 	cmd7 := exec.Command(
 		"sed",
 		"-i",
 		`/node.latency[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/node.latency[[:space:]]*=[[:space:]]*[0-9]*/node.latency = `+fmt.Sprintf("%d", bufferSize)+`/`,
-		dir+"jack,conf",
+		dir+"/jack.conf",
 	)
 
 	out7, err := cmd7.CombinedOutput()
@@ -159,11 +193,12 @@ func main() {
 	}
 	fmt.Println(string(out7))
 
+	// Uncomment and update node quantum
 	cmd8 := exec.Command(
 		"sed",
 		"-i",
 		`/node.quantum[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/node.quantum[[:space:]]*=[[:space:]]*[0-9]*/node.quantum = `+fmt.Sprintf("%d", bufferSize)+`/`,
-		dir+"jack,conf",
+		dir+"/jack.conf",
 	)
 
 	out8, err := cmd8.CombinedOutput()
@@ -171,4 +206,12 @@ func main() {
 		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 	}
 	fmt.Println(string(out8))
+}
+
+func storeDirec(dir string, err error) {
+	// Store the directory in a .env file
+	err = godotenv.Write(map[string]string{"PIPEWIRE_DIR": dir}, ".env")
+	if err != nil {
+		fmt.Println("Error writing to .env file")
+	}
 }

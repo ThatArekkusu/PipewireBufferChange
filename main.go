@@ -8,111 +8,167 @@ import (
 func main() {
 	var clockChoice string
 	var clockRate int
+	var err error
+	var dir string
 
-	fmt.Println("Do you want to set clock rate? (y/n)")
+	fmt.Println("Enter your pipewire configuration directory, This will likely be in /usr/share/pipewire or /.config/pipewire: ")
+	fmt.Scanln(&dir)
+	fmt.Println("Do you want to set clock rate? (y/n): ")
 	fmt.Scanln(&clockChoice)
 
 	if clockChoice == "y" {
-		fmt.Println("Enter the clock rate you want to set the system to:")
+		fmt.Println("Enter the clock rate you want to set the system to: ")
 
 		// Define the clock rate the user wants their system to be set to.
-		var err error
-
 		_, err = fmt.Scanln(&clockRate)
 		if err != nil {
 			fmt.Println("Error:", err)
-
-			// Fifth command
-			cmd := exec.Command(
-				"sed",
-				"-i",
-				"s/default.clock.rate[[:space:]]*=[[:space:]]*[0-9]*/default.clock.rate = "+fmt.Sprintf("%d", clockRate)+"/",
-				".config/pipewire/pipewire.conf")
-
-			out, err := cmd.CombinedOutput()
-			if err != nil {
-				fmt.Println("Error:", err)
-			}
-			fmt.Println(string(out))
-
-			cmd1 := exec.Command(
-				"sed",
-				"-i",
-				"s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\\[[[:space:]]*[0-9]+[[:space:]]*\\]/default.clock.allowed-rates = \\["+fmt.Sprintf("%d", clockRate)+"\\]/",
-				".config/pipewire/pipewire.conf")
-
-			out1, err := cmd1.CombinedOutput()
-			if err != nil {
-				fmt.Println("Error:", err)
-			}
-			fmt.Println(string(out1))
-
 			return
 		}
+
+		// Uncomment and update the clock rate
+		cmd := exec.Command(
+			"sed",
+			"-i",
+			`/default.clock.rate[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/default.clock.rate[[:space:]]*=[[:space:]]*[0-9]*/default.clock.rate = `+fmt.Sprintf("%d", clockRate)+`/`,
+			dir+"/pipewire.conf")
+
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+		}
+		fmt.Println(string(out))
+
+		// Uncomment and update the allowed rates
+		cmd1 := exec.Command(
+			"sed",
+			"-i",
+			`/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9]+[[:space:]]*\]/s/^[#[:space:]]*/    /; s/default.clock.allowed-rates[[:space:]]*=[[:space:]]*\[[[:space:]]*[0-9]+[[:space:]]*\]/default.clock.allowed-rates = \[`+fmt.Sprintf("%d", clockRate)+`\]/`,
+			dir+"/pipewire.conf")
+
+		out1, err := cmd1.CombinedOutput()
+		if err != nil {
+			fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+		}
+		fmt.Println(string(out1))
+
+		return
 	}
 
 	fmt.Println("Enter the buffer size you want to set the system to:")
 
 	// Define the buffer size the user wants their system to be set to.
 	var bufferSize int
-	_, err := fmt.Scanln(&bufferSize)
+	_, err = fmt.Scanln(&bufferSize)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 		return
 	}
 	// Buffer size "default.clock.min-quantum" needs to be half the buffer size.
 	bufferSizeMinQuantum := bufferSize / 2
 
-	// First command
+	// Uncomment and update the clock quantum
 	cmd1 := exec.Command(
 		"sed",
 		"-i",
-		"s/default.clock.quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.quantum = "+fmt.Sprintf("%d", bufferSize)+"/",
-		".config/pipewire/pipewire.conf")
+		`/default.clock.quantum[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/default.clock.quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.quantum = `+fmt.Sprintf("%d", bufferSize)+`/`,
+		dir+"/pipewire.conf")
 
 	out1, err := cmd1.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try ~/.config/pipewire")
 	}
 	fmt.Println(string(out1))
 
-	// Second command
+	// Uncomment and update the min quantum
 	cmd2 := exec.Command(
 		"sed",
 		"-i",
-		"s/default.clock.min-quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.min-quantum = "+fmt.Sprintf("%d", bufferSizeMinQuantum)+"/",
-		".config/pipewire/pipewire.conf")
+		`/default.clock.min-quantum[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/default.clock.min-quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.min-quantum = `+fmt.Sprintf("%d", bufferSizeMinQuantum)+`/`,
+		dir+"/pipewire.conf")
 
 	out2, err := cmd2.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 	}
 	fmt.Println(string(out2))
 
-	// Third command
+	// Uncomment and update the max quantum
 	cmd3 := exec.Command(
 		"sed",
 		"-i",
-		"s/default.clock.max-quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.max-quantum = "+fmt.Sprintf("%d", bufferSize)+"/",
-		".config/pipewire/pipewire.conf")
+		`/default.clock.max-quantum[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/default.clock.max-quantum[[:space:]]*=[[:space:]]*[0-9]*/default.clock.max-quantum = `+fmt.Sprintf("%d", bufferSize)+`/`,
+		dir+"/pipewire.conf")
 
 	out3, err := cmd3.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 	}
 	fmt.Println(string(out3))
 
-	// Fourth command
+	// Uncomment and update the quantum limit
 	cmd4 := exec.Command(
 		"sed",
 		"-i",
-		"s/default.clock.quantum-limit[[:space:]]*=[[:space:]]*[0-9]*/default.clock.quantum-limit = "+fmt.Sprintf("%d", bufferSize)+"/",
-		".config/pipewire/pipewire.conf")
+		`/default.clock.quantum-limit[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/default.clock.quantum-limit[[:space:]]*=[[:space:]]*[0-9]*/default.clock.quantum-limit = `+fmt.Sprintf("%d", bufferSize)+`/`,
+		dir+"/pipewire.conf")
 
 	out4, err := cmd4.CombinedOutput()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 	}
 	fmt.Println(string(out4))
 
+	cmd5 := exec.Command(
+		"sed",
+		"-i",
+		`/rt.prio[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/            /; s/rt.prio[[:space:]]*=[[:space:]]*[0-9]*/rt.prio = 99/`,
+		dir+"/pipewire-pulse.conf",
+	)
+
+	out5, err := cmd5.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+	}
+	fmt.Println(string(out5))
+
+	// Uncomment and update the nice level
+	cmd6 := exec.Command(
+		"sed",
+		"-i",
+		`/nice.level[[:space:]]*=[[:space:]]*-[0-9]*/s/^[#[:space:]]*/            /; s/nice.level[[:space:]]*=[[:space:]]*-[0-9]*/nice.level = -20/`,
+		dir+"/pipewire-pulse.conf",
+	)
+
+	out6, err := cmd6.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+	}
+	fmt.Println(string(out6))
+
+	cmd7 := exec.Command(
+		"sed",
+		"-i",
+		`/node.latency[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/node.latency[[:space:]]*=[[:space:]]*[0-9]*/node.latency = `+fmt.Sprintf("%d", bufferSize)+`/`,
+		dir+"jack,conf",
+	)
+
+	out7, err := cmd7.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+	}
+	fmt.Println(string(out7))
+
+	cmd8 := exec.Command(
+		"sed",
+		"-i",
+		`/node.quantum[[:space:]]*=[[:space:]]*[0-9]*/s/^[#[:space:]]*/    /; s/node.quantum[[:space:]]*=[[:space:]]*[0-9]*/node.quantum = `+fmt.Sprintf("%d", bufferSize)+`/`,
+		dir+"jack,conf",
+	)
+
+	out8, err := cmd8.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
+	}
+	fmt.Println(string(out8))
 }

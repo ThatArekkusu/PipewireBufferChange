@@ -3,6 +3,9 @@
 ## Overview
 PipewireBufferChange is a project designed to automate buffer size changes in the pipewire directory.
 
+## Dependancies
+pipewire, pipewire-pulse, pipewire-jack
+
 ## Installation
 To install PipewireBufferChange, follow these steps:
 
@@ -24,12 +27,7 @@ To install PipewireBufferChange, follow these steps:
     ./install.sh
     ```
 
-5. After setting buffer size:
-    ```bash
-    chmod +x audio.sh
-    ```
-
-6. Restart audio drivers (this will be automated in the future)
+5. Restart audio drivers (this will be automated in the future)
     ```bash
     ./audio.sh
     ```

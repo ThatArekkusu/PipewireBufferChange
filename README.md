@@ -36,3 +36,14 @@ To install PipewireBufferChange, follow these steps:
 To use PipewireBufferChange, execute the following command:
 ```bash
 bufferchange run
+```
+
+To check current buffer size last set by the program run:
+```bash
+bufferchange status
+```
+
+To check currently set directory run:
+```bash
+bufferchange directory
+```

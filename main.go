@@ -11,10 +11,11 @@ import (
 func main() {
 	var clockChoice string
 	var clockRate int
-	var err error
 	var dir string
+	var err error
 	var storeDir string
 	var changeDir string
+	var bufferSize int
 
 	err = godotenv.Load()
 	if err != nil {
@@ -30,7 +31,7 @@ func main() {
 		fmt.Scanln(&storeDir)
 
 		if storeDir == "y" {
-			storeDirec(dir, err)
+			storeDirec(dir, &err)
 		}
 	}
 
@@ -41,7 +42,7 @@ func main() {
 		if changeDir == "y" {
 			fmt.Println("Enter your pipewire configuration directory, This will likely be in /usr/share/pipewire or /.config/pipewire: ")
 			fmt.Scanln(&dir)
-			storeDirec(dir, err)
+			storeDirec(dir, &err)
 		}
 	}
 
@@ -88,12 +89,13 @@ func main() {
 	fmt.Println("Enter the buffer size you want to set the system to:")
 
 	// Define the buffer size the user wants their system to be set to.
-	var bufferSize int
 	_, err = fmt.Scanln(&bufferSize)
 	if err != nil {
 		fmt.Println("Error:", err, "If /etc/pipewire it likely will be .conf.d files, try /.config/pipewire")
 		return
 	}
+	bufferSizeStr := fmt.Sprintf("%d", bufferSize)
+
 	// Buffer size "default.clock.min-quantum" needs to be half the buffer size.
 	bufferSizeMinQuantum := bufferSize / 2
 
@@ -205,12 +207,35 @@ func main() {
 	}
 	fmt.Println(string(out8))
 
+	// Load existing environment variables
+	envMap, loadErr := godotenv.Read()
+	if loadErr != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	// Update the PREV_BUFFER variable
+	envMap["PREV_BUFFER"] = bufferSizeStr
+
+	// Write the updated environment variables back to the .env file
+	err = godotenv.Write(envMap, ".env")
+	if err != nil {
+		fmt.Println("Error writing to .env file")
+	}
 }
 
-func storeDirec(dir string, err error) {
-	// Store the directory in a .env file
-	err = godotenv.Write(map[string]string{"PIPEWIRE_DIR": dir}, ".env")
-	if err != nil {
+func storeDirec(dir string, err *error) {
+	// Load existing environment variables
+	envMap, loadErr := godotenv.Read()
+	if loadErr != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	// Update the PIPEWIRE_DIR variable
+	envMap["PIPEWIRE_DIR"] = dir
+
+	// Write the updated environment variables back to the .env file
+	*err = godotenv.Write(envMap, ".env")
+	if *err != nil {
 		fmt.Println("Error writing to .env file")
 	}
 }

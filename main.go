@@ -29,7 +29,7 @@ func main() {
 
 	fmt.Println("[1] Set buffer size")
 	fmt.Println("[2] Store directory")
-	fmt.Println("[3] Change directory")
+	fmt.Println("[3] Change clock rate")
 	fmt.Println("[4] Exit")
 	fmt.Println("Enter your choice: ")
 	fmt.Scanln(&funcChoice)

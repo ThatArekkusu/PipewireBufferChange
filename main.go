@@ -61,6 +61,8 @@ func bufferSet(bufferSize int, dir string, err *error) {
 	}
 	bufferSizeStr := fmt.Sprintf("%d", bufferSize)
 
+	dir = os.Getenv("PIPEWIRE_DIR")
+	
 	// Buffer size "default.clock.min-quantum" needs to be half the buffer size.
 	bufferSizeMinQuantum := bufferSize / 2
 
